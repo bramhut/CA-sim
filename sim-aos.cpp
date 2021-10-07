@@ -4,6 +4,7 @@
 #include "sim-aos.h"
 
 using namespace std;
+//alexay7 - checking everything is fine with push and commit
 
 int main()
 {
