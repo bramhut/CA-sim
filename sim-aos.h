@@ -1,8 +1,11 @@
-﻿// sim-aos.h : Include file for standard system include files,
-// or project specific include files.
-
-#pragma once
+﻿#pragma once
 
 #include <iostream>
+#include <iomanip>
+#include <random>
+#include <vector>
 
-// TODO: Reference additional headers your program requires here.
+#include "object.h"
+
+#define G 6.674E-11
+

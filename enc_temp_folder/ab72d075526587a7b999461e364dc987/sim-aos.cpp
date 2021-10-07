@@ -4,7 +4,7 @@ int main()
 {
 	uint64_t seed = 31728674;
 	const double size_enclosure = 1000000;
-	const double num_objects = 50000;
+	const double num_objects = 2;
 	const double time_step = 0.01;
 	// Check the input parameters
 
@@ -25,7 +25,7 @@ int main()
 
 	// Forces
 	objects[0].fx = objects[0].fy = objects[0].fz = 0;	// Reset the force on the first object, others are reset in the loop
-	size_t objectsSize = objects.size();
+	unsigned int objectsSize = objects.size();
 	for (unsigned int i = 0; i < objectsSize; i++) {
 		for (unsigned int j = i + 1; j < objectsSize; j++) {
 			if (i == 0) { 
@@ -53,7 +53,7 @@ int main()
 		objects[i].vy += objects[i].fy / objects[i].mass * time_step;
 		objects[i].vz += objects[i].fz / objects[i].mass * time_step;
 	}
-	/*
+
 	// Printing
 	std::printf("\t  x\t\t  y\t\t  z\n");
 	for (const auto& i : objects) {
@@ -62,6 +62,6 @@ int main()
 		std::printf("%04d: v: %.2E \t%.2E \t%.2E\n",j, i.vx, i.vy, i.vz);
 		j++;
 	}
-	*/
+	
 	return 0;
 }
