@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <random>
 #include <vector>
+#include <algorithm>
 
 #include "object.h"
 

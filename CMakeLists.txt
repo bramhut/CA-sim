@@ -5,8 +5,14 @@ cmake_minimum_required (VERSION 3.8)
 
 project ("sim-aos")
 
+set (CMAKE_CXX_STANDARD 23)
+
 if (MSVC)
-    add_compile_options(/W4 /WX)
+    if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+        string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    else()
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+    endif()
 else()
     add_compile_options(-Wall -Wextra -Wno-deprecated -Werror -pedantic -pedantic-errors)
 endif()

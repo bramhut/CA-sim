@@ -20,7 +20,7 @@ struct Object {
 	double fy = 0;
 	double fz = 0;
 
-	Object(const double mass, const double x, const double y, const double z) : mass(mass), x(x), y(y), z(z) {}
+	Object(const double mass = 0, const double x = 0, const double y = 0, const double z = 0) : mass(mass), x(x), y(y), z(z) {}
 };
 
 inline double dst_sqr(Object &a, Object &b) {
