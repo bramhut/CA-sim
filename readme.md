@@ -1,5 +1,5 @@
 # TO-DO
-- [ ] Check input arguments											-- Alex
+- [x] Check input arguments											-- Alex
 - [ ] Check collisions and merge objects
 - [ ] Print init_config.txt
 - [ ] Print final_config.txt
