@@ -4,7 +4,7 @@ int main()
 {
 	uint64_t seed = 31728674;
 	const double size_enclosure = 1000000;
-	const double num_objects = 50000;
+	const double num_objects = 2;
 	const double time_step = 0.01;
 	// Check the input parameters
 
@@ -52,16 +52,21 @@ int main()
 		objects[i].vx += objects[i].fx / objects[i].mass * time_step;
 		objects[i].vy += objects[i].fy / objects[i].mass * time_step;
 		objects[i].vz += objects[i].fz / objects[i].mass * time_step;
+
+		objects[i].x += objects[i].vx * time_step;
+		objects[i].y += objects[i].vy * time_step;
+		objects[i].z += objects[i].vz * time_step;
 	}
-	/*
+	
 	// Printing
 	std::printf("\t  x\t\t  y\t\t  z\n");
 	for (const auto& i : objects) {
 		static unsigned int j = 0;
+		std::printf("%04d: f: %.2E \t%.2E \t%.2E\n", j, i.fx, i.fy, i.fz);
 		std::printf("%04d: p: %.2E \t%.2E \t%.2E\n",j, i.x, i.y, i.z);
 		std::printf("%04d: v: %.2E \t%.2E \t%.2E\n",j, i.vx, i.vy, i.vz);
 		j++;
 	}
-	*/
+	
 	return 0;
 }

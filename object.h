@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 #define sqr(a) (a)*(a)
 #define cube(a) (a)*(a)*(a)
 
@@ -26,6 +28,6 @@ inline double dst_sqr(Object &a, Object &b) {
 }
 
 inline double dst_cube(Object& a, Object& b) {
-	return cube(a.x - b.x) + cube(a.y - b.y) + cube(a.z - b.z);
+	return std::pow(dst_sqr(a,b), 1.5);
 }
 

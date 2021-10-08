@@ -1,0 +1,11 @@
+# TO-DO
+- [ ] Check input arguments
+- [ ] Check collisions and merge objects
+- [ ] Print init_config.txt
+- [ ] Print final_config.txt
+- [ ] Integrate Rebound effect
+- [ ] Assign mass of the objects following a normal distribution
+- [ ] Performance evaluations
+- [ ] Create structure of arrays version
+- [x] Calculating forces, distance and velocity
+- [x] Creating objects in space and distributing them
