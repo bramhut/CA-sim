@@ -5,6 +5,7 @@
 #include <random>
 #include <vector>
 #include <algorithm>
+#include <chrono>
 #include <string> //needed for conversing argv
 #include "object.h"
 

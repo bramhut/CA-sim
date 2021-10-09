@@ -1,7 +1,6 @@
 ﻿#include "sim-aos.h"
 
 int main() {
-	auto t1 = std::chrono::high_resolution_clock::now();	// Start measuring the execution time
 	// CONTROL VARIABLES
 	// uint64_t seed = 31728674;
 	// const double size_enclosure = 1000000;
@@ -80,7 +79,7 @@ int main() {
 			i.fx = i.fy = i.fz = 0;
 		}
 
-		// Calculate the force, change in velocity and position
+		// Caculate the force, change in velocity and position
 		for (size_t i = 0; i < objects.size(); i++) {
 			
 			size_t objectsSize = objects.size();
@@ -109,27 +108,15 @@ int main() {
 			objects[i].y += objects[i].vy * time_step;
 			objects[i].z += objects[i].vz * time_step;
 
-			// Check for boundary bounce
-			if (objects[i].x > size_enclosure) { objects[i].x = size_enclosure; objects[i].vx *= -1; }
-			if (objects[i].y > size_enclosure) { objects[i].y = size_enclosure; objects[i].vy *= -1; }
-			if (objects[i].z > size_enclosure) { objects[i].z = size_enclosure; objects[i].vz *= -1; }
-
-			if (objects[i].x < 0) { objects[i].x = 0; objects[i].vx *= -1; }
-			if (objects[i].y < 0) { objects[i].y = 0; objects[i].vy *= -1; }
-			if (objects[i].z < 0) { objects[i].z = 0; objects[i].vz *= -1; }
-
 			// Check for collisions (for all objects j < i)
 			auto it = objects.begin();
 			while (it != objects.begin() + i) { // for all objects j < i
-				if (dst_sqr(objects[i], *it) < sqr(merge_distance)) {
+				if (dst_sqr(objects[i], *it) < merge_distance) {
 					// Collision detected, merge object j (it) into i
 					objects[i].mass += (*it).mass;
 					objects[i].vx += (*it).vx;
 					objects[i].vy += (*it).vy;
 					objects[i].vz += (*it).vz;
-					std::printf("Two bodies collided. New mass: %.2E\n", objects[i].mass);
-
-					// Delete second object
 					it = objects.erase(it);
 					i--; // Decrement i, as we just deleted a entry j < i
 				}
@@ -137,11 +124,9 @@ int main() {
 					++it;
 				}
 			}
-
 		}
 
-		// Printing (only in debug)
-		#ifndef NDEBUG
+		// Printing
 		std::printf("it %d\t  x\t\t  y\t\t  z\n", (int)iteration);
 		unsigned int j = 0;
 		for (const auto& i : objects) {
@@ -150,15 +135,9 @@ int main() {
 			std::printf("%04d: v: %.2E \t%.2E \t%.2E\n", j, i.vx, i.vy, i.vz);
 			j++;
 		}
-		if (objects.size() > 1)
-			std::printf("Distance (0-1) %.2E\n", std::sqrt(dst_sqr(objects[0], objects[1])));
-		#endif
+		std::printf("Distance (0-1) %.2E\n", std::sqrt(dst_sqr(objects[0], objects[1])));
 	}	// END OF TIME LOOP
-
-	// Measure execution time and print it
-	auto t2 = std::chrono::high_resolution_clock::now();
-	std::chrono::duration<double, std::milli> exec_ms = t2 - t1;
-	std::printf("Total execution time was %.2f ms.", exec_ms.count());
+	
 	
 	return 0;
 }

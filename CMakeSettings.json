@@ -33,6 +33,11 @@
           "name": "CMAKE_BUILD_TYPE",
           "value": "Debug",
           "type": "STRING"
+        },
+        {
+          "name": "CMAKE_GNUtoMS",
+          "value": "False",
+          "type": "BOOL"
         }
       ]
     }
