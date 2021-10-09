@@ -1,6 +1,6 @@
 ﻿#include "sim-aos.h"
 
-int main() {
+int main(int argc, char** argv) {
 	auto t1 = std::chrono::high_resolution_clock::now();	// Start measuring the execution time
 	// CONTROL VARIABLES
 	// uint64_t seed = 31728674;
@@ -12,31 +12,31 @@ int main() {
 	// Check the input parameters
 	const char *arguments[5] = {"num_objects", "num_iterations",
 								"random_seed", "size_enclosure", "time_step"};
-	std::cout << "sim-soa invoked with " << __argc - 1 << " parameters."
+	std::cout << "sim-soa invoked with " << argc - 1 << " parameters."
 			  << "\n"
 			  << "Arguments:\n";
 
 	// Iterate for every argument needed
 	for (int i = 1; i < 6; i++) {
 		// Only assign variables that exist, variables that don't exist get an ?
-		if (__argc > i) {
-			std::cout << " " << arguments[i - 1] << ": " << __argv[i] << "\n";
+		if (argc > i) {
+			std::cout << " " << arguments[i - 1] << ": " << argv[i] << "\n";
 		} else {
 			std::cout << " " << arguments[i - 1] << ": ?"
 					  << "\n";
 		}
 	}
 
-	if (__argc != 6) {
+	if (argc != 6) {
 		std::cerr << "Error: Wrong number of parameters";
 		return -1;
 	}
 
-	const int num_objects = std::stoi(__argv[1]);
-	const int num_iterations = std::stoi(__argv[2]);
-	const uint64_t seed = std::stoull(__argv[3]);
-	const double size_enclosure = std::stod(__argv[4]);
-	const double time_step = std::stod(__argv[5]);
+	const int num_objects = std::stoi(argv[1]);
+	const int num_iterations = std::stoi(argv[2]);
+	const uint64_t seed = std::stoull(argv[3]);
+	const double size_enclosure = std::stod(argv[4]);
+	const double time_step = std::stod(argv[5]);
 
 	if (num_objects < 0) {
 		std::cerr << "Error: Invalid number of objects";
