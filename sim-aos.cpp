@@ -73,6 +73,13 @@ int main(int argc, char** argv) {
 	};
 	std::generate(objects.begin(), objects.end(), rnd_object);
 
+    std::ofstream initial;
+    initial.open("init_config.txt");
+    initial << std::fixed << std::setprecision(3) << size_enclosure << " " << time_step << " " << num_objects << "\n";
+
+    std::ofstream final;
+    final.open("final_config.txt");
+    final << std::fixed << std::setprecision(3) << size_enclosure << " " << time_step << " " << num_objects << "\n";
 
 	// Time loop
 	for (size_t iteration = 0; iteration < num_iterations_unsigned; iteration++) {
@@ -140,6 +147,16 @@ int main(int argc, char** argv) {
 				}
 			}
 
+            if (iteration == 0) {
+                initial << std::fixed << std::setprecision(3) << objects[i].x << " " << objects[i].y << " " << objects[i].z << " " << objects[i].vx << " " << objects[i].vy << " " << objects[i].vz << " " << objects[i].mass << "\n";
+            } else if (iteration == num_iterations_unsigned - 1) {
+                final << std::fixed << std::setprecision(3) << objects[i].x << " " << objects[i].y << " " << objects[i].z << " " << objects[i].vx << " " << objects[i].vy << " " << objects[i].vz << " " << objects[i].mass << "\n";
+            }
+        }
+
+        initial.close();
+        if (iteration == num_iterations_unsigned - 1) {
+            final.close();
 		}
 
 		// Printing (only in debug)
