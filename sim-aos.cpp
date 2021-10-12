@@ -38,6 +38,8 @@ int main(int argc, char** argv) {
 	const double size_enclosure = std::stod(argv[4]);
 	const double time_step = std::stod(argv[5]);
 
+	const unsigned int num_iterations_unsigned = (unsigned int)num_iterations;
+
 	if (num_objects < 0) {
 		std::cerr << "Error: Invalid number of objects";
 		return -1;
@@ -73,7 +75,7 @@ int main(int argc, char** argv) {
 
 
 	// Time loop
-	for (size_t iteration = 0; iteration < num_iterations; iteration++) {
+	for (size_t iteration = 0; iteration < num_iterations_unsigned; iteration++) {
 
 		// Reset all forces to zero
 		for (auto& i : objects) {
