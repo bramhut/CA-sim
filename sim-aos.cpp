@@ -154,8 +154,9 @@ int main(int argc, char** argv) {
             }
         }
 
+        if (iteration == 0) {
         initial.close();
-        if (iteration == num_iterations_unsigned - 1) {
+        } else if (iteration == num_iterations_unsigned - 1) {
             final.close();
 		}
 
