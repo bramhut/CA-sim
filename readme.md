@@ -13,5 +13,5 @@
 
 And after the above: 
 
-- [ ] Create structure of arrays version
+- [x] Create structure of arrays version          --Jon
 - [ ] Performance evaluations

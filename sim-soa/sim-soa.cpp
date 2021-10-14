@@ -67,8 +67,6 @@ int main(int argc, char** argv) {
 	std::normal_distribution<double> normal_distr(1E21, 1E15);
 
 	// Generate Object; assign random values to mass and position
-	//
-	// note: Bram - double check this works correctly
 	struct Object object = new struct Object();
 	init_Object(object, num_objects);
 	
