@@ -82,6 +82,31 @@ void adjust_for_boundary(Object& n, double size_enclosure){
 	}
 }
 
+// j merges into i (j deleted)
+void merge_objects(Object& n, int i, int j){
+	// Merge attributes
+	n.mass[i] += n.mass[j];
+	n.vx[i] += n.vx[j];
+    n.vy[i] += n.vy[j];
+    n.vz[i] += n.vz[j];
+	
+	// Delete second object
+
+	n.mass.erase(n.mass.begin()+j);
+	n.x.erase(n.x.begin()+j);
+	n.y.erase(n.y.begin()+j);
+	n.z.erase(n.z.begin()+j);
+	n.vx.erase(n.vx.begin()+j);
+	n.vy.erase(n.vy.begin()+j);
+	n.vz.erase(n.vz.begin()+j);
+	n.fx.erase(n.fx.begin()+j);
+	n.fy.erase(n.fy.begin()+j);
+	n.fz.erase(n.fz.begin()+j);
+
+	n.size--;
+}
+
+
 
 inline double dst_sqr(Object& n, int i1, int i2) {
 	return sqr(n.x[i1] - n.x[i2]) + sqr(n.y[i1] - n.y[i2]) + sqr(n.z[i1] - n.z[i2]);

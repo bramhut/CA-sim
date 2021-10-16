@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 #include <random>
 #include <algorithm>

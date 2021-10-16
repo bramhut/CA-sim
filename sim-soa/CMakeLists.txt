@@ -18,6 +18,6 @@ else()
 endif()
 
 # Add source to this project's executable.
-add_executable (sim-aos "sim-aos.cpp" "sim-aos.h" "object.h")
+add_executable (sim-soa "sim-soa.cpp" "sim-soa.h" "object.h")
 
 # TODO: Add tests and install targets if needed.

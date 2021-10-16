@@ -67,41 +67,112 @@ int main(int argc, char** argv) {
 	std::normal_distribution<double> normal_distr(1E21, 1E15);
 
 	// Generate Object; assign random values to mass and position
-	struct Object object = new struct Object();
+	struct Object object;
+
 	init_Object(object, num_objects);
 	
 	for(int i = 0; i < num_objects; i++){
-		add_Object(n, normal_distr(gen), uniform_distr(gen), uniform_distr(gen), uniform_distr(gen));
+		add_Object(object, normal_distr(gen), uniform_distr(gen), uniform_distr(gen), uniform_distr(gen));
 	}
+
+	std::ofstream initial;
+	initial.open("init_config.txt");
+	initial << std::fixed << std::setprecision(3) << size_enclosure << " " << time_step << " " << num_objects << "\n";
+
+	std::ofstream final;
+	final.open("final_config.txt");
+	final << std::fixed << std::setprecision(3) << size_enclosure << " " << time_step << " " << num_objects << "\n";
+
 
 
 	// Time loop
+	for (size_t iteration = 0; iteration < num_iterations_unsigned; iteration++) {
+
 		// Reset all forces to zero
-		//
-		// note: use function "reset_forces" from object.h
+		reset_forces(object);
 
 		// Calculate the force, change in velocity and position
+		for (int i = 0; i < object.size; i++) {
+
+			for(int j = i+1; j < object.size; j++) {
+			
+				double massGravDist = object.mass[i] * object.mass[j] * G / dst_cube(object, i, j);
+				double fx = massGravDist * (object.x[j] - object.x[i]);
+				double fy = massGravDist * (object.y[j] - object.y[i]);
+				double fz = massGravDist * (object.z[j] - object.z[i]);
+			
+				object.fx[i] += fx;
+				object.fx[j] -= fx;
+				object.fy[i] += fy;
+				object.fy[j] -= fy;
+				object.fz[i] += fz;
+				object.fz[j] -= fz;
+			}
 
 			// All forces on objects[i] are now computed, calculate the velocity change
 			// F=ma -> a=F/m
 			// dv=a*dt -> dv=F/m*dt
-
+			
+			object.vx[i] += object.fx[i] / object.mass[i] * time_step;
+			object.vy[i] += object.fy[i] / object.mass[i] * time_step;
+			object.vz[i] += object.fz[i] / object.mass[i] * time_step;
+			
 			// Update the position of the object
+			
+			object.x[i] += object.vx[i] * time_step;
+			object.y[i] += object.vy[i] * time_step;
+			object.z[i] += object.vz[i] * time_step;
 
-			// Check for boundary bounce
-			//
-			// note: use function "adjust_for_boundary" from object.h		
-
+			// If objects are outside of boundary, set them to the perimeter
+			
+			adjust_for_boundary(object, size_enclosure);
 
 			// Check for collisions (for all objects j < i)
+			
+			int iterator = 0;
+			while(iterator < i){
+				if (dst_sqr(object, i, iterator) < sqr(merge_distance)){
+					// Collision detected, merge iterator object into i
+
+					merge_objects(object, i, iterator);
+					
+					// Decrement i, as i is now one index lower
+					i--;
+
+					std::printf("Two bodies collided. New size: %.2E\n", object.mass[i]);
+
+				}else{
+					iterator++;
+				}
+			}
+		}
 
 
+		if (iteration == 0) {
+            // Store all initial values in file
+			
+			for(int i = 0; i < object.size; i ++){
+				initial << std::fixed << std::setprecision(3) << object.x[i] << " " << object.y[i] << " " << object.z[i] << " " << object.vx[i] << " " << object.vy[i] << " " << object.vz[i] << " " << object.mass[i] << "\n";
+			}
 
+        } else if (iteration == num_iterations_unsigned - 1) {
+			// Store all final values in file
+
+			for(int i = 0; i < object.size; i ++){
+                final << std::fixed << std::setprecision(3) << object.x[i] << " " << object.y[i] << " " << object.z[i] << " " << object.vx[i] << " " << object.vy[i] << " " << object.vz[i] << " " << object.mass[i] << "\n";
+    		}
+		
+		}
+
+	
+	}// End time loop
+
+	std::printf("Position of final object: %.2E, %.2E, %.2E", object.x[0], object.y[0], object.z[0]);
 
 	// Measure execution time and print it
 	auto t2 = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double, std::milli> exec_ms = t2 - t1;
-	std::printf("Total execution time was %.2f ms.", exec_ms.count());
+	std::printf("Total execution time was %.2f ms.\n", exec_ms.count());
 	
 	return 0;
 }
