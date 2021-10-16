@@ -167,7 +167,7 @@ int main(int argc, char** argv) {
 		for (const auto& i : objects) {
 			std::printf("%04d: f: %.2E \t%.2E \t%.2E\n", j, i.fx, i.fy, i.fz);
 			std::printf("%04d: p: %.2E \t%.2E \t%.2E\n", j, i.x, i.y, i.z);
-			std::printf("%04d: v: %.2E \t%.2E \t%.2E\n", j, i.vx, i.vy, i.vz);
+			std::printf("%04d: v: %.2E \t%.2E \t%.2E\n\n", j, i.vx, i.vy, i.vz);
 			j++;
 		}
 		if (objects.size() > 1)
@@ -178,7 +178,7 @@ int main(int argc, char** argv) {
 	// Measure execution time and print it
 	auto t2 = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double, std::milli> exec_ms = t2 - t1;
-	std::printf("Total execution time was %.2f ms.", exec_ms.count());
+	std::printf("Total execution time was %.2f ms.\n", exec_ms.count());
 	
 	return 0;
 }

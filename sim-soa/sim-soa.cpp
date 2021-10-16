@@ -164,6 +164,22 @@ int main(int argc, char** argv) {
 		
 		}
 
+		#ifndef NDEBUG
+            std::printf("it %d\t  x\t\t  y\t\t  z\n", (int)iteration);
+    	    unsigned int j = 0;
+            for (int i = 0; i < object.size; i++) {
+                std::printf("%04d: f: %.2E \t%.2E \t%.2E\n", j, object.fx[i], object.fy[i], object.fz[i]);
+                std::printf("%04d: p: %.2E \t%.2E \t%.2E\n", j, object.x[i], object.y[i], object.z[i]);
+                std::printf("%04d: v: %.2E \t%.2E \t%.2E\n\n", j, object.vx[i], object.vy[i], object.vz[i]);
+                j++;
+            }
+            if (object.size > 1){
+                std::printf("Distance (0-1) %.2E\n", std::sqrt(dst_sqr(object, 0, 1)));
+			}
+		#endif
+
+
+
 	
 	}// End time loop
 
