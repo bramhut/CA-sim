@@ -10,6 +10,8 @@
 - [x] Assign mass of the objects following a normal distribution	-- Bram
 - [x] Calculating forces, distance and velocity						-- Bram
 - [x] Creating objects in space and distributing them				-- Bram
+- [ ] Fix mass RNG order
+- [ ] Check for collision before loop start
 
 And after the above: 
 

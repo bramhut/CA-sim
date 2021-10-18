@@ -12,7 +12,7 @@ int main(int argc, char** argv) {
     // Check the input parameters
     const char* arguments[5] = {"num_objects", "num_iterations",
                                 "random_seed", "size_enclosure", "time_step"};
-    std::cout << "sim-soa invoked with " << argc - 1 << " parameters."
+    std::cout << "sim-aos invoked with " << argc - 1 << " parameters."
               << "\n"
               << "Arguments:\n";
 
@@ -69,9 +69,22 @@ int main(int argc, char** argv) {
     // Create the necessary amount of objects and store them in a vector of class Object
     std::vector<Object> objects(num_objects);
     auto rnd_object = [&gen, &uniform_distr, &normal_distr] {
-        return Object(normal_distr(gen), uniform_distr(gen), uniform_distr(gen), uniform_distr(gen));
+        double x = uniform_distr(gen);
+        double y = uniform_distr(gen);
+        double z = uniform_distr(gen);
+        double m = normal_distr(gen);
+        return Object(m, x, y, z);
     };
     std::generate(objects.begin(), objects.end(), rnd_object);
+
+    // Print the initial config
+    std::ofstream initial;
+    initial.open("init_config.txt");
+    initial << std::fixed << std::setprecision(3) << size_enclosure << " " << time_step << " " << num_objects << "\n";
+    for (size_t i = 0; i < objects.size(); i++) {
+        initial << std::fixed << std::setprecision(3) << objects[i].x << " " << objects[i].y << " " << objects[i].z << " " << objects[i].vx << " " << objects[i].vy << " " << objects[i].vz << " " << objects[i].mass << "\n";
+    }
+    initial.close();
 
     // Time loop
     for (size_t iteration = 0; iteration < num_iterations_unsigned; iteration++) {
@@ -155,25 +168,6 @@ int main(int argc, char** argv) {
             }
         }
 
-        // Only run the loop of the data if is the first or the last iteration
-        if (iteration == 0) {
-            std::ofstream initial;
-            initial.open("init_config.txt");
-            initial << std::fixed << std::setprecision(3) << size_enclosure << " " << time_step << " " << num_objects << "\n";
-            for (size_t i = 0; i < objects.size(); i++) {
-                initial << std::fixed << std::setprecision(3) << objects[i].x << " " << objects[i].y << " " << objects[i].z << " " << objects[i].vx << " " << objects[i].vy << " " << objects[i].vz << " " << objects[i].mass << "\n";
-            }
-            initial.close();
-        } else if (iteration == num_iterations_unsigned - 1) {
-            std::ofstream final;
-            final.open("final_config.txt");
-            final << std::fixed << std::setprecision(3) << size_enclosure << " " << time_step << " " << num_objects << "\n";
-            for (size_t i = 0; i < objects.size(); i++) {
-                final << std::fixed << std::setprecision(3) << objects[i].x << " " << objects[i].y << " " << objects[i].z << " " << objects[i].vx << " " << objects[i].vy << " " << objects[i].vz << " " << objects[i].mass << "\n";
-            }
-            final.close();
-        }
-
 // Printing (only in debug)
 #ifndef NDEBUG
         std::printf("it %d\t  x\t\t  y\t\t  z\n", (int)iteration);
@@ -188,6 +182,15 @@ int main(int argc, char** argv) {
             std::printf("Distance (0-1) %.2E\n", std::sqrt(dst_sqr(objects[0], objects[1])));
 #endif
     }  // END OF TIME LOOP
+
+    // Printing final config
+    std::ofstream final;
+    final.open("final_config.txt");
+    final << std::fixed << std::setprecision(3) << size_enclosure << " " << time_step << " " << num_objects << "\n";
+    for (size_t i = 0; i < objects.size(); i++) {
+        final << std::fixed << std::setprecision(3) << objects[i].x << " " << objects[i].y << " " << objects[i].z << " " << objects[i].vx << " " << objects[i].vy << " " << objects[i].vz << " " << objects[i].mass << "\n";
+    }
+    final.close();
 
     // Measure execution time and print it
     auto t2 = std::chrono::high_resolution_clock::now();
