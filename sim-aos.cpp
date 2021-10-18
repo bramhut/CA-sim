@@ -1,13 +1,36 @@
 ﻿#include "sim-aos.h"
 
+// CONTROL VARIABLES
+const double merge_distance = 1;
+
+// Checks for collisions between object i and objects 0 to i - 1
+void checkCollisions(std::vector<Object>& objects, size_t& i) {
+    auto it = objects.begin();
+    while (it != objects.begin() + i) {  // for all objects j < i
+        if (dst_sqr(objects[i], *it) < sqr(merge_distance)) {
+            // Collision detected, merge object j (it) into i
+            objects[i].mass += (*it).mass;
+            objects[i].vx += (*it).vx;
+            objects[i].vy += (*it).vy;
+            objects[i].vz += (*it).vz;
+
+            // Printing (only in debug)
+#ifndef NDEBUG
+            std::printf("Two bodies collided. New mass: %.2E\n", objects[i].mass);
+#endif
+
+            // Delete second object
+            it = objects.erase(it);
+            i--;  // Decrement i, as we just deleted a entry j < i
+        }
+        else {
+            ++it;
+        }
+    }
+}
+
 int main(int argc, char** argv) {
     auto t1 = std::chrono::high_resolution_clock::now();  // Start measuring the execution time
-    // CONTROL VARIABLES
-    // uint64_t seed = 31728674;
-    // const double size_enclosure = 1000000;
-    // const double num_objects = 2;
-    // const double time_step = 0.01;
-    const double merge_distance = 1;
 
     // Check the input parameters
     const char* arguments[5] = {"num_objects", "num_iterations",
@@ -77,6 +100,11 @@ int main(int argc, char** argv) {
     };
     std::generate(objects.begin(), objects.end(), rnd_object);
 
+    // Check for collisions before starting
+    for (size_t i = 0; i < objects.size(); i++) {
+        checkCollisions(objects, i);
+    }
+
     // Print the initial config
     std::ofstream initial;
     initial.open("init_config.txt");
@@ -93,7 +121,7 @@ int main(int argc, char** argv) {
             i.fx = i.fy = i.fz = 0;
         }
 
-        // Calculate the force, change in velocity and position
+        // Calculate the force, change in velocity and position for every object
         for (size_t i = 0; i < objects.size(); i++) {
             size_t objectsSize = objects.size();
             for (size_t j = i + 1; j < objectsSize; j++) {
@@ -149,26 +177,10 @@ int main(int argc, char** argv) {
             }
 
             // Check for collisions (for all objects j < i)
-            auto it = objects.begin();
-            while (it != objects.begin() + i) {  // for all objects j < i
-                if (dst_sqr(objects[i], *it) < sqr(merge_distance)) {
-                    // Collision detected, merge object j (it) into i
-                    objects[i].mass += (*it).mass;
-                    objects[i].vx += (*it).vx;
-                    objects[i].vy += (*it).vy;
-                    objects[i].vz += (*it).vz;
-                    std::printf("Two bodies collided. New mass: %.2E\n", objects[i].mass);
-
-                    // Delete second object
-                    it = objects.erase(it);
-                    i--;  // Decrement i, as we just deleted a entry j < i
-                } else {
-                    ++it;
-                }
-            }
+            checkCollisions(objects, i);
         }
 
-// Printing (only in debug)
+        // Printing (only in debug)
 #ifndef NDEBUG
         std::printf("it %d\t  x\t\t  y\t\t  z\n", (int)iteration);
         unsigned int j = 0;
