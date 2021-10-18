@@ -61,27 +61,24 @@ int main(int argc, char** argv) {
     const double size_enclosure = std::stod(argv[4]);
     const double time_step = std::stod(argv[5]);
 
-    const unsigned int num_iterations_unsigned = (unsigned int)num_iterations;
-
     if (num_objects < 0) {
         std::cerr << "Error: Invalid number of objects\n";
-        return -1;
+        return -2;
     }
     if (num_iterations < 0) {
         std::cerr << "Error: Invalid number of iterations\n";
-        return -1;
+        return -2;
     }
-    if ((int)seed < 0) {
-        std::cerr << "Error: Invalid seed\n";
-        return -1;
-    }
+
+    // Seed is already an unsigned 64 bit integer, no need to check for validity
+
     if (size_enclosure < 0) {
         std::cerr << "Error: Invalid box size\n";
-        return -1;
+        return -2;
     }
     if (time_step < 0) {
         std::cerr << "Error: Invalid time increment\n";
-        return -1;
+        return -2;
     }
 
     // Initialize the RNG
@@ -108,14 +105,14 @@ int main(int argc, char** argv) {
     // Print the initial config
     std::ofstream initial;
     initial.open("init_config.txt");
-    initial << std::fixed << std::setprecision(3) << size_enclosure << " " << time_step << " " << num_objects << "\n";
-    for (size_t i = 0; i < objects.size(); i++) {
-        initial << std::fixed << std::setprecision(3) << objects[i].x << " " << objects[i].y << " " << objects[i].z << " " << objects[i].vx << " " << objects[i].vy << " " << objects[i].vz << " " << objects[i].mass << "\n";
+    initial << std::fixed << std::setprecision(3) << size_enclosure << " " << time_step << " " << objects.size() << "\n";
+    for (const auto& i : objects) {
+        initial << std::fixed << std::setprecision(3) << i.x << " " << i.y << " " << i.z << " " << i.vx << " " << i.vy << " " << i.vz << " " << i.mass << "\n";
     }
     initial.close();
 
     // Time loop
-    for (size_t iteration = 0; iteration < num_iterations_unsigned; iteration++) {
+    for (size_t iteration = 0; iteration < (unsigned) num_iterations; iteration++) {
         // Reset all forces to zero
         for (auto& i : objects) {
             i.fx = i.fy = i.fz = 0;
@@ -198,9 +195,9 @@ int main(int argc, char** argv) {
     // Printing final config
     std::ofstream final;
     final.open("final_config.txt");
-    final << std::fixed << std::setprecision(3) << size_enclosure << " " << time_step << " " << num_objects << "\n";
-    for (size_t i = 0; i < objects.size(); i++) {
-        final << std::fixed << std::setprecision(3) << objects[i].x << " " << objects[i].y << " " << objects[i].z << " " << objects[i].vx << " " << objects[i].vy << " " << objects[i].vz << " " << objects[i].mass << "\n";
+    final << std::fixed << std::setprecision(3) << size_enclosure << " " << time_step << " " << objects.size() << "\n";
+    for (const auto& i : objects) {
+        final << std::fixed << std::setprecision(3) << i.x << " " << i.y << " " << i.z << " " << i.vx << " " << i.vy << " " << i.vz << " " << i.mass << "\n";
     }
     final.close();
 
