@@ -10,8 +10,11 @@
 - [x] Creating objects in space and distributing them				-- Bram
 - [x] Fix mass RNG order											-- Bram (only fixed on Linux, on windows the results are swapped somehow)
 - [x] Check for collision before loop start
+- [x] Create structure of arrays version          --Jon
+- [ ] Check number of allocs in soa version
+- [ ] check for collisions before loop start in soa version
+- [ ] Investigate mass changing on windows compilations
 
 And after the above: 
-
-- [x] Create structure of arrays version          --Jon
+- [ ] Modify both versions so that the code is similar
 - [ ] Performance evaluations
