@@ -3,11 +3,11 @@
 #
 
 # Minimum version required for standard 23
-cmake_minimum_required (VERSION 3.21)
+cmake_minimum_required (VERSION 3.8)
 
 project ("sim-aos")
 
-set (CMAKE_CXX_STANDARD 23)
+set (CMAKE_CXX_STANDARD 20)
 
 if (MSVC)
     if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")

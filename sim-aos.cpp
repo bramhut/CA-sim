@@ -7,7 +7,7 @@ int main(int argc, char** argv) {
     // const double size_enclosure = 1000000;
     // const double num_objects = 2;
     // const double time_step = 0.01;
-    const double merge_distance = 500;
+    const double merge_distance = 1;
 
     // Check the input parameters
     const char* arguments[5] = {"num_objects", "num_iterations",
