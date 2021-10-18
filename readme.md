@@ -8,7 +8,7 @@
 - [x] Assign mass of the objects following a normal distribution	-- Bram
 - [x] Calculating forces, distance and velocity						-- Bram
 - [x] Creating objects in space and distributing them				-- Bram
-- [ ] Fix mass RNG order
+- [x] Fix mass RNG order     -- Bram (only fixed on Linux, on windows the results are swapped somehow)
 - [ ] Check for collision before loop start
 
 And after the above: 
