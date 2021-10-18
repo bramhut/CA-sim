@@ -6,7 +6,6 @@ int main(int argc, char **argv)
 
 
 	// Check the input parameters
-	// Check the input parameters
 	const char* arguments[5] = { "num_objects", "num_iterations",
 								"random_seed", "size_enclosure", "time_step" };
 	std::cout << "sim-aos invoked with " << argc - 1 << " parameters."
@@ -30,11 +29,11 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-	const int num_objects = std::stoi(argv[1]);
-	const int num_iterations = std::stoi(argv[2]);
-	const uint64_t seed = std::stoull(argv[3]);
-	const double size_enclosure = std::stod(argv[4]);
-	const double time_step = std::stod(argv[5]);
+    const int num_objects = std::stoi(argv[1]);
+    const int num_iterations = std::stoi(argv[2]);
+    const uint64_t seed = std::stoull(argv[3]);
+    const double size_enclosure = std::stod(argv[4]);
+    const double time_step = std::stod(argv[5]);
 
 	if (num_objects < 0) {
 		std::cerr << "Error: Invalid number of objects\n";
@@ -92,33 +91,33 @@ int main(int argc, char **argv)
 				double fy = massGravDist * (object.y[j] - object.y[i]);
 				double fz = massGravDist * (object.z[j] - object.z[i]);
 
-				object.fx[i] += fx;
-				object.fx[j] -= fx;
-				object.fy[i] += fy;
-				object.fy[j] -= fy;
-				object.fz[i] += fz;
-				object.fz[j] -= fz;
-			}
+                object.fx[i] += fx;
+                object.fx[j] -= fx;
+                object.fy[i] += fy;
+                object.fy[j] -= fy;
+                object.fz[i] += fz;
+                object.fz[j] -= fz;
+            }
 
-			// All forces on objects[i] are now computed, calculate the velocity change
-			// F=ma -> a=F/m
-			// dv=a*dt -> dv=F/m*dt
+            // All forces on objects[i] are now computed, calculate the velocity change
+            // F=ma -> a=F/m
+            // dv=a*dt -> dv=F/m*dt
 
-			object.vx[i] += object.fx[i] / object.mass[i] * time_step;
-			object.vy[i] += object.fy[i] / object.mass[i] * time_step;
-			object.vz[i] += object.fz[i] / object.mass[i] * time_step;
+            object.vx[i] += object.fx[i] / object.mass[i] * time_step;
+            object.vy[i] += object.fy[i] / object.mass[i] * time_step;
+            object.vz[i] += object.fz[i] / object.mass[i] * time_step;
 
-			// Update the position of the object
+            // Update the position of the object
 
-			object.x[i] += object.vx[i] * time_step;
-			object.y[i] += object.vy[i] * time_step;
-			object.z[i] += object.vz[i] * time_step;
+            object.x[i] += object.vx[i] * time_step;
+            object.y[i] += object.vy[i] * time_step;
+            object.z[i] += object.vz[i] * time_step;
 
-			// If objects are outside of boundary, set them to the perimeter
+            // If objects are outside of boundary, set them to the perimeter
 
 			object.adjust_for_boundary(size_enclosure);
 
-			// Check for collisions (for all objects j < i)
+            // Check for collisions (for all objects j < i)
 
 			object.check_collisions(i);
 		}
@@ -151,10 +150,10 @@ int main(int argc, char **argv)
 	}
 	final.close();
 
-	// Measure execution time and print it
-	auto t2 = std::chrono::high_resolution_clock::now();
-	std::chrono::duration<double, std::milli> exec_ms = t2 - t1;
-	std::printf("Total execution time was %.2f ms.\n", exec_ms.count());
+    // Measure execution time and print it
+    auto t2 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> exec_ms = t2 - t1;
+    std::printf("Total execution time was %.2f ms.\n", exec_ms.count());
 
-	return 0;
+    return 0;
 }
