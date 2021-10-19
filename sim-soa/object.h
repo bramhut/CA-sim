@@ -7,8 +7,8 @@
 #define cube(a) (a)*(a)*(a)
 
 struct Object;
-inline double dst_sqr(Object* n, int i1, int i2);
-inline double dst_cube(Object* n, int i1, int i2);
+inline double dst_sqr(Object* n, size_t i1, size_t i2);
+inline double dst_cube(Object* n, size_t i1, size_t i2);
 
 struct Object {
 
@@ -92,7 +92,7 @@ struct Object {
 	}
 
 	// j merges into i (j deleted)
-	void merge_objects(int i, int j) {
+	void merge_objects(size_t i, size_t j) {
 		// Merge attributes
 		mass[i] += mass[j];
 		vx[i] += vx[j];
@@ -140,10 +140,10 @@ struct Object {
 
 };
 
-inline double dst_sqr(Object* n, int i1, int i2) {
+inline double dst_sqr(Object* n, size_t i1, size_t i2) {
 	return sqr(n->x[i1] - n->x[i2]) + sqr(n->y[i1] - n->y[i2]) + sqr(n->z[i1] - n->z[i2]);
 }
 
-inline double dst_cube(Object* n, int i1, int i2) {
+inline double dst_cube(Object* n, size_t i1, size_t i2) {
 	return std::pow(dst_sqr(n, i1, i2), 1.5);
 }
