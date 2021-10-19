@@ -119,7 +119,7 @@ int main(int argc, char **argv)
 
             // Check for collisions (for all objects j < i)
 
-			i = object.check_collisions(i);
+			object.check_collisions(i);
 		}
 
 		// Printing (only in debug)

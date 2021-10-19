@@ -115,7 +115,7 @@ struct Object {
 		size--;
 	}
 
-	inline unsigned int check_collisions(size_t& i) {
+	inline void check_collisions(size_t& i) {
 		size_t iterator = 0;
 		while (iterator < i)
 		{
@@ -136,7 +136,6 @@ struct Object {
 				iterator++;
 			}
 		}
-		return i;
 	}
 
 };
