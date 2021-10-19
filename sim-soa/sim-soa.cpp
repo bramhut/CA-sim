@@ -1,5 +1,7 @@
 #include "sim-soa.h"
 
+bool en_benchmark = false;
+
 int main(int argc, char **argv)
 {
 	auto t1 = std::chrono::high_resolution_clock::now(); // Start measuring the execution time
@@ -8,23 +10,34 @@ int main(int argc, char **argv)
 	// Check the input parameters
 	const char* arguments[5] = { "num_objects", "num_iterations",
 								"random_seed", "size_enclosure", "time_step" };
-	std::cout << "sim-aos invoked with " << argc - 1 << " parameters."
-		<< "\n"
-		<< "Arguments:\n";
+	if (argc == 7) {
+		std::string arg6(argv[6]);
+		if (arg6 == "en_benchmark") {
+			en_benchmark = true;
+		}
+	}
+	if (!en_benchmark) {
+		std::cout << "sim-aos invoked with " << argc - 1 << " parameters."
+			<< "\n"
+			<< "Arguments:\n";
+	}
 
 	// Iterate for every argument needed
-	for (size_t i = 1; i < 6; i++) {
-		// Only assign variables that exist, variables that don't exist get an ?
-		if (argc > (int) i) {
-			std::cout << " " << arguments[i - 1] << ": " << argv[i] << "\n";
-		}
-		else {
-			std::cout << " " << arguments[i - 1] << ": ?"
-				<< "\n";
+	if (!en_benchmark) {
+		for (int i = 1; i < 6; i++) {
+			// Only assign variables that exist, variables that don't exist get an ?
+			if (argc > i) {
+				std::cout << " " << arguments[i - 1] << ": " << argv[i] << "\n";
+			}
+			else {
+				std::cout << " " << arguments[i - 1] << ": ?"
+					<< "\n";
+			}
 		}
 	}
 
-	if (argc != 6) {
+	// Check the parameter count
+	if (argc < 6 || argc > 7) {
 		std::cerr << "Error: Wrong number of parameters\n";
 		return -1;
 	}
@@ -153,7 +166,12 @@ int main(int argc, char **argv)
     // Measure execution time and print it
     auto t2 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> exec_ms = t2 - t1;
-    std::printf("Total execution time was %.2f ms.\n", exec_ms.count());
+	if (en_benchmark) {
+		std::printf("%f", exec_ms.count());
+	}
+	else {
+		std::printf("Total execution time was %f ms.\n", exec_ms.count());
+	}
 
     return 0;
 }

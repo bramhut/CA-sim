@@ -64,6 +64,7 @@ int main(int argc, char** argv) {
         }
     }
 
+    // Check the parameter count
     if (argc < 6 || argc > 7) {
         std::cerr << "Error: Wrong number of parameters\n";
         return -1;
