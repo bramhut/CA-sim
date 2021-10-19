@@ -56,13 +56,13 @@ struct Object {
 	}
 
 	// Reset the forces to zero
-	void reset_forces() {
+	inline void reset_forces() {
 		std::fill(fx.begin(), fx.end(), 0);
 		std::fill(fy.begin(), fy.end(), 0);
 		std::fill(fz.begin(), fz.end(), 0);
 	}
 
-	void adjust_for_boundary(const double size_enclosure) {
+	inline void adjust_for_boundary(const double size_enclosure) {
 		for (size_t i = 0; i < size; i++) {
 			if (x[i] < 0) {
 				x[i] = 0;
@@ -92,7 +92,7 @@ struct Object {
 	}
 
 	// j merges into i (j deleted)
-	void merge_objects(size_t i, size_t j) {
+	inline void merge_objects(size_t i, size_t j) {
 		// Merge attributes
 		mass[i] += mass[j];
 		vx[i] += vx[j];
@@ -115,7 +115,7 @@ struct Object {
 		size--;
 	}
 
-	void check_collisions(size_t& i) {
+	inline void check_collisions(size_t& i) {
 		size_t iterator = 0;
 		while (iterator < i)
 		{
