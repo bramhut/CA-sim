@@ -127,15 +127,11 @@ int main(int argc, char** argv) {
     initial.close();
 
     // Time loop
-    for (size_t iteration = 0; iteration < (unsigned) num_iterations; iteration++) {
-        // Reset all forces to zero
-        for (auto& i : objects) {
-            i.fx = i.fy = i.fz = 0;
-        }
+    for (size_t iteration = 0; iteration < (unsigned) num_iterations; iteration++) {  
 
         // Calculate the force, change in velocity and position for every object
         for (size_t i = 0; i < objects.size(); i++) {
-            size_t objectsSize = objects.size();
+            const size_t objectsSize = objects.size();
             for (size_t j = i + 1; j < objectsSize; j++) {
                 double massGravDist = objects[i].mass * objects[j].mass * G / dst_cube(objects[i], objects[j]);
                 double fx = massGravDist * (objects[j].x - objects[i].x);
@@ -155,6 +151,9 @@ int main(int argc, char** argv) {
             objects[i].vx += objects[i].fx / objects[i].mass * time_step;
             objects[i].vy += objects[i].fy / objects[i].mass * time_step;
             objects[i].vz += objects[i].fz / objects[i].mass * time_step;
+
+            // Reset all forces to zero
+            objects[i].fx = objects[i].fy = objects[i].fz = 0;
 
             // Update the position of the object
             objects[i].x += objects[i].vx * time_step;
