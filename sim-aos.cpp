@@ -10,10 +10,10 @@ void checkCollisions(std::vector<Object>& objects, size_t& i) {
     while (it != objects.begin() + i) {  // for all objects j < i
         if (dst_sqr(objects[i], *it) < sqr(merge_distance)) {
             // Collision detected, merge object j (it) into i
-            objects[i].mass += (*it).mass;
-            objects[i].vx += (*it).vx;
-            objects[i].vy += (*it).vy;
-            objects[i].vz += (*it).vz;
+            objects[i].mass += it->mass;
+            objects[i].vx += it->vx;
+            objects[i].vy += it->vy;
+            objects[i].vz += it->vz;
 
             // Printing (only in debug)
 #ifndef NDEBUG
