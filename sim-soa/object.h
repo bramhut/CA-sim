@@ -128,7 +128,7 @@ struct Object {
 				// Decrement i, as i is now one index lower
 				i--;
 #ifndef NDEBUG
-				std::printf("Two bodies collided. New size: %.2E\n", object.mass[i]);
+				std::printf("Two bodies collided. New size: %.2E\n", mass[i]);
 #endif
 			}
 			else
