@@ -145,5 +145,6 @@ inline double dst_sqr(Object* n, size_t i1, size_t i2) {
 }
 
 inline double dst_cube(Object* n, size_t i1, size_t i2) {
-	return std::pow(dst_sqr(n, i1, i2), 1.5);
+	double dst = std::sqrt(dst_sqr(n,i1,i2));
+	return cube(dst);
 }
