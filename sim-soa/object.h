@@ -62,32 +62,30 @@ struct Object {
 		std::fill(fz.begin(), fz.end(), 0);
 	}
 
-	inline void adjust_for_boundary(const double size_enclosure) {
-		for (size_t i = 0; i < size; i++) {
-			if (x[i] < 0) {
-				x[i] = 0;
-				vx[i] *= -1;
-			}
-			if (x[i] > size_enclosure) {
-				x[i] = size_enclosure;
-				vx[i] *= -1;
-			}
-			if (y[i] < 0) {
-				y[i] = 0;
-				vy[i] *= -1;
-			}
-			if (y[i] > size_enclosure) {
-				y[i] = size_enclosure;
-				vy[i] *= -1;
-			}
-			if (z[i] < 0) {
-				z[i] = 0;
-				vz[i] *= -1;
-			}
-			if (z[i] > size_enclosure) {
-				z[i] = size_enclosure;
-				vz[i] *= -1;
-			}
+	inline void adjust_for_boundary(const double size_enclosure, const size_t i) {
+		if (x[i] < 0) {
+			x[i] = 0;
+			vx[i] *= -1;
+		}
+		if (x[i] > size_enclosure) {
+			x[i] = size_enclosure;
+			vx[i] *= -1;
+		}
+		if (y[i] < 0) {
+			y[i] = 0;
+			vy[i] *= -1;
+		}
+		if (y[i] > size_enclosure) {
+			y[i] = size_enclosure;
+			vy[i] *= -1;
+		}
+		if (z[i] < 0) {
+			z[i] = 0;
+			vz[i] *= -1;
+		}
+		if (z[i] > size_enclosure) {
+			z[i] = size_enclosure;
+			vz[i] *= -1;
 		}
 	}
 

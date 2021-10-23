@@ -5,8 +5,6 @@ cmake_minimum_required (VERSION 3.8)
 
 project ("sim-aos")
 
-set (CMAKE_CXX_STANDARD 23)
-
 if (MSVC)
     if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
         string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
@@ -19,5 +17,8 @@ endif()
 
 # Add source to this project's executable.
 add_executable (sim-soa "sim-soa.cpp" "sim-soa.h" "object.h")
+
+set_target_properties(sim-soa PROPERTIES CXX_STANDARD 20
+                                       CXX_STANDARD_REQUIRED ON)
 
 # TODO: Add tests and install targets if needed.

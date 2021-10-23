@@ -128,7 +128,7 @@ int main(int argc, char **argv)
 
             // If objects are outside of boundary, set them to the perimeter
 
-			object.adjust_for_boundary(size_enclosure);
+			object.adjust_for_boundary(size_enclosure,i);
 
             // Check for collisions (for all objects j < i)
 
