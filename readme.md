@@ -12,9 +12,9 @@
 - [x] Check for collision before loop start
 - [x] Create structure of arrays version          --Jon
 - [ ] Check number of allocs in soa version
-- [ ] check for collisions before loop start in soa version
+- [x] check for collisions before loop start in soa version
 - [ ] Investigate mass changing on windows compilations
 
 And after the above: 
-- [ ] Modify both versions so that the code is similar
-- [ ] Performance evaluations
+- [x] Modify both versions so that the code is similar
+- [x] Performance evaluations
