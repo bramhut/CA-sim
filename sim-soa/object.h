@@ -62,6 +62,7 @@ struct Object {
 		std::fill(fz.begin(), fz.end(), 0);
 	}
 
+	// Keep objects inside the boundary
 	inline void adjust_for_boundary(const double size_enclosure, const size_t i) {
 		if (x[i] < 0) {
 			x[i] = 0;
@@ -113,6 +114,7 @@ struct Object {
 		size--;
 	}
 
+	// Check for possible collisions (for objects j < i)
 	inline void check_collisions(size_t& i) {
 		size_t iterator = 0;
 		while (iterator < i)

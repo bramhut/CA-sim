@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 .vscode
 build/
+/enc_temp_folder/1dd3ea94841865c1816a6eb3c5d66c/sim-aos.cpp
