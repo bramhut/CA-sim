@@ -2,6 +2,8 @@ seed=31728674
 size_enclosure=1000000
 time_step=0.01
 samples=15
+num_objects_totest=(1000 2000 4000)
+num_iterations_totest=(50 100 200)
 
 SOA_file="results_SOA.csv"
 AOS_file="results_AOS.csv"
@@ -21,9 +23,9 @@ do
 	printf ",Sample $i" >> $SOA_file
 done
 
-for num_objects in {1000,2000,4000}
+for num_objects in ${num_objects_totest[@]}
 do
-	for num_iterations in {50,100,200}
+	for num_iterations in ${num_iterations_totest[@]}
 	do
 		t_AOS_sum=""
 		t_SOA_sum=""
