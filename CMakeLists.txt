@@ -2,10 +2,9 @@
 # project specific logic here.
 #
 
-# Minimum version required for standard 23
 cmake_minimum_required (VERSION 3.8)
 
-project ("sim-aos")
+project ("CA-sim")
 
 set (CMAKE_CXX_STANDARD 20)
 
@@ -22,3 +21,5 @@ endif()
 # Add source to this project's executable.
 add_executable (sim-aos "sim-aos/sim-aos.cpp" "sim-aos/sim-aos.h" "sim-aos/object.h")
 add_executable (sim-soa "sim-soa/sim-soa.cpp" "sim-soa/sim-soa.h" "sim-soa/object.h")
+add_executable (sim-paos "sim-paos/sim-paos.cpp" "sim-paos/sim-paos.h" "sim-paos/object.h")
+add_executable (sim-psoa "sim-psoa/sim-psoa.cpp" "sim-psoa/sim-psoa.h" "sim-psoa/object.h")
