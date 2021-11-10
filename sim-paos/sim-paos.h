@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <omp.h>
+
 #include <algorithm>
 #include <chrono>
 #include <fstream>  //needed for file read/write

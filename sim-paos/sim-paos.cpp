@@ -23,8 +23,7 @@ void checkCollisions(std::vector<Object>& objects, size_t& i) {
             // Delete second object
             it = objects.erase(it);
             i--;  // Decrement i, as we just deleted a entry j < i
-        }
-        else {
+        } else {
             ++it;
         }
     }
@@ -46,8 +45,8 @@ int main(int argc, char** argv) {
     }
     if (!en_benchmark) {
         std::cout << "sim-paos invoked with " << argc - 1 << " parameters."
-            << "\n"
-            << "Arguments:\n";
+                  << "\n"
+                  << "Arguments:\n";
     }
 
     // Iterate for every argument needed
@@ -56,10 +55,9 @@ int main(int argc, char** argv) {
             // Only assign variables that exist, variables that don't exist get an ?
             if (argc > i) {
                 std::cout << " " << arguments[i - 1] << ": " << argv[i] << "\n";
-            }
-            else {
+            } else {
                 std::cout << " " << arguments[i - 1] << ": ?"
-                    << "\n";
+                          << "\n";
             }
         }
     }
@@ -127,22 +125,25 @@ int main(int argc, char** argv) {
     initial.close();
 
     // Time loop
-    for (size_t iteration = 0; iteration < (unsigned) num_iterations; iteration++) {  
-
+    for (size_t iteration = 0; iteration < (unsigned)num_iterations; iteration++) {
         // Calculate the force, change in velocity and position for every object
         for (size_t i = 0; i < objects.size(); i++) {
-            const size_t objectsSize = objects.size();
-            for (size_t j = i + 1; j < objectsSize; j++) {
-                double massGravDist = objects[i].mass * objects[j].mass * G / dst_cube(objects[i], objects[j]);
-                double fx = massGravDist * (objects[j].x - objects[i].x);
-                double fy = massGravDist * (objects[j].y - objects[i].y);
-                double fz = massGravDist * (objects[j].z - objects[i].z);
-                objects[i].fx += fx;
-                objects[j].fx -= fx;
-                objects[i].fy += fy;
-                objects[j].fy -= fy;
-                objects[i].fz += fz;
-                objects[j].fz -= fz;
+#pragma omp parallel
+            {
+                const size_t objectsSize = objects.size();
+#pragma omp for
+                for (size_t j = i + 1; j < objectsSize; j++) {
+                    double massGravDist = objects[i].mass * objects[j].mass * G / dst_cube(objects[i], objects[j]);
+                    double fx = massGravDist * (objects[j].x - objects[i].x);
+                    double fy = massGravDist * (objects[j].y - objects[i].y);
+                    double fz = massGravDist * (objects[j].z - objects[i].z);
+                    objects[i].fx += fx;
+                    objects[j].fx -= fx;
+                    objects[i].fy += fy;
+                    objects[j].fy -= fy;
+                    objects[i].fz += fz;
+                    objects[j].fz -= fz;
+                }
             }
 
             // All forces on objects[i] are now computed, calculate the velocity change
@@ -220,11 +221,9 @@ int main(int argc, char** argv) {
     std::chrono::duration<double, std::milli> exec_ms = t2 - t1;
     if (en_benchmark) {
         std::printf("%f", exec_ms.count());
-    }
-    else {
+    } else {
         std::printf("Total execution time was %f ms.\n", exec_ms.count());
     }
-
 
     return 0;
 }

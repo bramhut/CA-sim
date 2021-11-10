@@ -18,6 +18,11 @@ else()
     add_compile_options(-Wall -Wextra -Wno-deprecated -Werror -pedantic -pedantic-errors)
 endif()
 
+find_package(OpenMP)
+if (OPENMP_FOUND)
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
+
 # Add source to this project's executable.
 add_executable (sim-aos "sim-aos/sim-aos.cpp" "sim-aos/sim-aos.h" "sim-aos/object.h")
 add_executable (sim-soa "sim-soa/sim-soa.cpp" "sim-soa/sim-soa.h" "sim-soa/object.h")
