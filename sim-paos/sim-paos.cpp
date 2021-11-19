@@ -1,37 +1,174 @@
 ﻿#include "sim-paos.h"
 
-// CONTROL VARIABLES
-const double merge_distance = 1;
-bool en_benchmark = false;
+
+/*
+
+
+Include pseudocode in the report!
+
+
+*/
+
+// GLOBAL VARIABLES
+
+    // SETTINGS
+    int num_objects;
+    int num_iterations;
+    uint64_t seed;
+    double size_enclosure;
+    double time_step;
+    bool en_benchmark = false;
+
+    // OBJECTS VECTOR
+    std::vector<Object> objects;
+
+// FUNCTIONS
+
+
+// REMOVE THIS LATER - JUST TO TEST THE EXEC TIME
+class watch {
+    std::chrono::steady_clock::time_point t1;
+    std::chrono::steady_clock::time_point t2;
+    uint64_t count = 0;
+public:
+    watch() {
+        start();
+    }
+    uint64_t stop() {
+        t2 = std::chrono::high_resolution_clock::now();
+        count += std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
+        return count;
+    }
+    void start() {
+        t1 = std::chrono::high_resolution_clock::now();
+    }
+    uint64_t getCount() {
+        return count;
+    }
+}collisionWatch, updateObjWatch, totalWatch;
+
+// Struct to store i-j object pair
+struct Pair {
+    size_t i;
+    size_t j;
+
+    
+};
+
+// Compare the pairs as if they were executed in sequential order (i first then j)
+inline bool operator<(const Pair& p1, const Pair& p2) {
+    return (p1.j - p1.i * num_objects) < (p2.j - p2.i * num_objects);
+}
 
 // Checks for collisions between object i and objects 0 to i - 1
-void checkCollisions(std::vector<Object>& objects, size_t& i) {
-    auto it = objects.begin();
-    while (it != objects.begin() + i) {  // for all objects j < i
-        if (dst_sqr(objects[i], *it) < sqr(merge_distance)) {
-            // Collision detected, merge object j (it) into i
-            objects[i].mass += it->mass;
-            objects[i].vx += it->vx;
-            objects[i].vy += it->vy;
-            objects[i].vz += it->vz;
+void checkCollisions() {
+    collisionWatch.start();
 
-            // Printing (only in debug)
-#ifndef NDEBUG
-            std::printf("Two bodies collided. New mass: %.2E\n", objects[i].mass);
-#endif
+    std::set<Pair> toRemove;
+    size_t objectsSize = objects.size();
 
-            // Delete second object
-            it = objects.erase(it);
-            i--;  // Decrement i, as we just deleted a entry j < i
-        }
-        else {
-            ++it;
+    #pragma omp parallel for num_threads(4) schedule(guided)
+    for (int i = 0; i < objectsSize; i++) {
+        for (int j = i - 1; j >= 0; j--) {
+            if (dst_sqr(objects[i], objects[j]) < 1) {
+                #pragma omp critical
+                toRemove.emplace(i,j);
+            }
         }
     }
+    
+
+    // All collisions have been detected, now merge the collided objects
+    //std::printf("New collision check\n");
+    static size_t iter = 0;
+    while (!toRemove.empty()) {
+        
+        // Remove the last element from the set
+        auto it = std::prev(toRemove.end());
+        
+        //auto p = toRemove.front();
+        //toRemove.pop();
+        auto i = (*it).i;
+        auto j = (*it).j;
+        toRemove.erase(it);
+
+        //if (std::find(seen[0].begin(), seen[0].end(), i) != seen[0].end()) {
+        //    std::printf("Found double i (%zi) in iteration %zi\n",i,iter);
+        //}
+        //if (std::find(seen[1].begin(), seen[1].end(), j) != seen[1].end()) {
+        //    std::printf("Found double j (%zi) in iteration %zi\n", j, iter);
+        //}
+        if (objects[j].removeFlag) {
+            continue;
+        }
+        objects[j].removeFlag = true;
+
+        objects[i].mass += objects[j].mass;
+        objects[i].v[0] += objects[j].v[0];
+        objects[i].v[1] += objects[j].v[1];
+        objects[i].v[2] += objects[j].v[2];
+        
+        //std::printf("\tMerging %zi -> %zi\n", j,i);
+        
+        iter++;
+    }
+
+    // Remove elements
+    objects.erase(
+        std::remove_if(
+            objects.begin(),
+            objects.end(),
+            [&](const Object obj)-> bool {
+                return obj.removeFlag;
+            }),
+        objects.end()
+    );
+    collisionWatch.stop();
+}
+
+void updateObjects() {
+    updateObjWatch.start();
+    auto objectsSize = objects.size();
+    //std::printf("Updating dim %i, objects size %zi\n", dim, objectsSize);
+    for (size_t i = 0; i < objectsSize; ++i) {
+        for (size_t j = i + 1; j < objectsSize; j++) {
+            double mgd = objects[i].mass * objects[j].mass * G / dst_cube(objects[i], objects[j]);
+            for (size_t dim = 0; dim < 3; dim++) {
+                double f = mgd * (objects[j].p[dim] - objects[i].p[dim]);
+                objects[i].f[dim] += f;
+                objects[j].f[dim] -= f;
+            }
+        }
+        // For all dimensions
+        for (size_t dim = 0; dim < 3; dim++) {
+            // Calculate velocity
+            objects[i].v[dim] += objects[i].f[dim] / objects[i].mass * time_step;
+
+            // Reset the force to zero
+            objects[i].f[dim] = 0;
+
+            // Update the position of the object
+            objects[i].p[dim] += objects[i].v[dim] * time_step;
+
+            // Check for boundary bounce
+            if (objects[i].p[dim] > size_enclosure) {
+                objects[i].p[dim] = size_enclosure;
+                objects[i].v[dim] *= -1;
+            }
+
+            if (objects[i].p[dim] < 0) {
+                objects[i].p[dim] = 0;
+                objects[i].v[dim] *= -1;
+            }
+        }
+    }
+    updateObjWatch.stop();
 }
 
 int main(int argc, char** argv) {
-    auto t1 = std::chrono::high_resolution_clock::now();  // Start measuring the execution time
+    totalWatch.start();  // Start measuring the execution time
+
+    //omp_set_num_threads(8);
 
     // Check the input parameters
     const char* arguments[5] = {"num_objects", "num_iterations",
@@ -70,11 +207,12 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    const int num_objects = std::stoi(argv[1]);
-    const int num_iterations = std::stoi(argv[2]);
-    const uint64_t seed = std::stoull(argv[3]);
-    const double size_enclosure = std::stod(argv[4]);
-    const double time_step = std::stod(argv[5]);
+    en_benchmark = en_benchmark;
+    num_objects = std::stoi(argv[1]);
+    num_iterations = std::stoi(argv[2]);
+    seed = std::stoull(argv[3]);
+    size_enclosure = std::stod(argv[4]);
+    time_step = std::stod(argv[5]);
 
     if (num_objects < 0) {
         std::cerr << "Error: Invalid number of objects\n";
@@ -102,7 +240,7 @@ int main(int argc, char** argv) {
     std::normal_distribution<double> normal_distr(1E21, 1E15);
 
     // Create the necessary amount of objects and store them in a vector of class Object
-    std::vector<Object> objects(num_objects);
+    objects.resize(num_objects);
     auto rnd_object = [&gen, &uniform_distr, &normal_distr] {
         double x = uniform_distr(gen);
         double y = uniform_distr(gen);
@@ -113,116 +251,50 @@ int main(int argc, char** argv) {
     std::generate(objects.begin(), objects.end(), rnd_object);
 
     // Check for collisions before starting
-    for (size_t i = 0; i < objects.size(); i++) {
-        checkCollisions(objects, i);
-    }
+    checkCollisions();
 
     // Print the initial config
     std::ofstream initial;
     initial.open("init_config.txt");
     initial << std::fixed << std::setprecision(3) << size_enclosure << " " << time_step << " " << objects.size() << "\n";
     for (const auto& i : objects) {
-        initial << std::fixed << std::setprecision(3) << i.x << " " << i.y << " " << i.z << " " << i.vx << " " << i.vy << " " << i.vz << " " << i.mass << "\n";
+        initial << std::fixed << std::setprecision(3) << i.p[0] << " " << i.p[1] << " " << i.p[2] << " " << i.v[0] << " " << i.v[1] << " " << i.v[2] << " " << i.mass << "\n";
     }
     initial.close();
 
     // Time loop
-    for (size_t iteration = 0; iteration < (unsigned) num_iterations; iteration++) {  
-
-        // Calculate the force, change in velocity and position for every object
-        for (size_t i = 0; i < objects.size(); i++) {
-            const size_t objectsSize = objects.size();
-            for (size_t j = i + 1; j < objectsSize; j++) {
-                double massGravDist = objects[i].mass * objects[j].mass * G / dst_cube(objects[i], objects[j]);
-                double fx = massGravDist * (objects[j].x - objects[i].x);
-                double fy = massGravDist * (objects[j].y - objects[i].y);
-                double fz = massGravDist * (objects[j].z - objects[i].z);
-                objects[i].fx += fx;
-                objects[j].fx -= fx;
-                objects[i].fy += fy;
-                objects[j].fy -= fy;
-                objects[i].fz += fz;
-                objects[j].fz -= fz;
-            }
-
-            // All forces on objects[i] are now computed, calculate the velocity change
-            // F=ma -> a=F/m
-            // dv=a*dt -> dv=F/m*dt
-            objects[i].vx += objects[i].fx / objects[i].mass * time_step;
-            objects[i].vy += objects[i].fy / objects[i].mass * time_step;
-            objects[i].vz += objects[i].fz / objects[i].mass * time_step;
-
-            // Reset all forces to zero
-            objects[i].fx = objects[i].fy = objects[i].fz = 0;
-
-            // Update the position of the object
-            objects[i].x += objects[i].vx * time_step;
-            objects[i].y += objects[i].vy * time_step;
-            objects[i].z += objects[i].vz * time_step;
-
-            // Check for boundary bounce
-            if (objects[i].x > size_enclosure) {
-                objects[i].x = size_enclosure;
-                objects[i].vx *= -1;
-            }
-            if (objects[i].y > size_enclosure) {
-                objects[i].y = size_enclosure;
-                objects[i].vy *= -1;
-            }
-            if (objects[i].z > size_enclosure) {
-                objects[i].z = size_enclosure;
-                objects[i].vz *= -1;
-            }
-
-            if (objects[i].x < 0) {
-                objects[i].x = 0;
-                objects[i].vx *= -1;
-            }
-            if (objects[i].y < 0) {
-                objects[i].y = 0;
-                objects[i].vy *= -1;
-            }
-            if (objects[i].z < 0) {
-                objects[i].z = 0;
-                objects[i].vz *= -1;
-            }
-
-            // Check for collisions (for all objects j < i)
-            checkCollisions(objects, i);
-        }
-
-        // Printing (only in debug)
-#ifndef NDEBUG
-        std::printf("it %d\t  x\t\t  y\t\t  z\n", (int)iteration);
-        unsigned int j = 0;
-        for (const auto& i : objects) {
-            std::printf("%04d: f: %.2E \t%.2E \t%.2E\n", j, i.fx, i.fy, i.fz);
-            std::printf("%04d: p: %.2E \t%.2E \t%.2E\n", j, i.x, i.y, i.z);
-            std::printf("%04d: v: %.2E \t%.2E \t%.2E\n\n", j, i.vx, i.vy, i.vz);
-            j++;
-        }
-        if (objects.size() > 1)
-            std::printf("Distance (0-1) %.2E\n", std::sqrt(dst_sqr(objects[0], objects[1])));
-#endif
+    for (size_t iteration = 0; iteration < (unsigned) num_iterations; iteration++) { 
+        updateObjects();
+        
+        // Check for collisions (for all objects j < i)
+        checkCollisions();
+        
     }  // END OF TIME LOOP
 
     // Printing final config
     std::ofstream final;
-    final.open("final_config.txt");
+    final.open("final_config_paos.txt");
     final << std::fixed << std::setprecision(3) << size_enclosure << " " << time_step << " " << objects.size() << "\n";
     for (const auto& i : objects) {
-        final << std::fixed << std::setprecision(3) << i.x << " " << i.y << " " << i.z << " " << i.vx << " " << i.vy << " " << i.vz << " " << i.mass << "\n";
+        final << std::fixed << std::setprecision(3) << i.p[0] << " " << i.p[1] << " " << i.p[2] << " " << i.v[0] << " " << i.v[1] << " " << i.v[2] << " " << i.mass << "\n";
     }
     final.close();
 
     // Measure execution time and print it
-    auto t2 = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> exec_ms = t2 - t1;
+    totalWatch.stop();
     if (en_benchmark) {
-        std::printf("%f", exec_ms.count());
+        std::printf("%f", totalWatch.getCount() / 1000000.0);
     }
     else {
-        std::printf("Total execution time was %f ms.\n", exec_ms.count());
+        double updateObjRel = (double)updateObjWatch.getCount() / totalWatch.getCount() * 100;
+        double collisionTimeRel = (double)collisionWatch.getCount() / totalWatch.getCount() * 100;
+        std::printf("Total execution time: %.1fms: UpdateObjTime %.1fms (%.1f%%), CollisionTime %.1fms (%.1f%%), Others (%.1f%%)\n", 
+            totalWatch.getCount() / 1000000.0,
+            updateObjWatch.getCount() / 1000000.0,
+            updateObjRel,
+            collisionWatch.getCount() / 1000000.0,
+            collisionTimeRel,
+            100.0- updateObjRel -collisionTimeRel);
     }
 
 

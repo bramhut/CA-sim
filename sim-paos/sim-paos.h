@@ -8,6 +8,10 @@
 #include <random>
 #include <string>  //needed for conversing argv
 #include <vector>
+#include <omp.h>
+#include <queue>
+#include <set>
+
 
 #include "object.h"
 

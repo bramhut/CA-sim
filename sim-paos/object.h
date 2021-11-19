@@ -5,26 +5,25 @@
 #define sqr(a) (a)*(a)
 #define cube(a) (a)*(a)*(a)
 
-struct Object {
+// Struct containing all relevant information about a dimension
+
+class Object {
+public:
 	double mass;
 
-	double x;
-	double y;
-	double z;
+	// x,y,z
+	double p[3];
+	double f[3] = { 0,0,0 };
+	double v[3] = { 0,0,0 };
 
-	double vx = 0;
-	double vy = 0;
-	double vz = 0;
-
-	double fx = 0;
-	double fy = 0;
-	double fz = 0;
-
-	Object(const double mass = 0, const double x = 0, const double y = 0, const double z = 0) : mass(mass), x(x), y(y), z(z) {}
+	// Set to true to remove this object (used in collision checking)
+	bool removeFlag = false;
+	
+	Object(const double mass = 0, const double x = 0, const double y = 0, const double z = 0) : mass(mass), p{ x,y,z } {}
 };
 
 inline double dst_sqr(const Object &a, const Object &b) {
-	return sqr(a.x - b.x) + sqr(a.y - b.y) + sqr(a.z - b.z);
+	return sqr(a.p[0] - b.p[0]) + sqr(a.p[1] - b.p[1]) + sqr(a.p[2] - b.p[2]);
 }
 
 inline double dst_cube(const Object& a, const Object& b) {

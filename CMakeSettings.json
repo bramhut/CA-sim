@@ -18,9 +18,15 @@
         },
         {
           "name": "DEFAULT_ARGUMENTS",
-          "value": "2000 50 31728674 1000000 0.01",
+          "value": "4000 200 31728674 1000000 0.01",
+          "type": "STRING"
+        },
+        {
+          "name": "OMP_WAIT_POLICY",
+          "value": "PASSIVE",
           "type": "STRING"
         }
+
       ]
     },
     {
@@ -43,6 +49,11 @@
           "name": "CMAKE_GNUtoMS",
           "value": "False",
           "type": "BOOL"
+        },
+        {
+          "name": "DEFAULT_ARGUMENTS",
+          "value": "1000 50 31728674 1000000 0.01",
+          "type": "STRING"
         }
       ]
     }
