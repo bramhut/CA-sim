@@ -183,8 +183,8 @@ int main(int argc, char** argv) {
     }
     if (!en_benchmark) {
         std::cout << "sim-paos invoked with " << argc - 1 << " parameters."
-            << "\n"
-            << "Arguments:\n";
+                  << "\n"
+                  << "Arguments:\n";
     }
 
     // Iterate for every argument needed
@@ -193,10 +193,9 @@ int main(int argc, char** argv) {
             // Only assign variables that exist, variables that don't exist get an ?
             if (argc > i) {
                 std::cout << " " << arguments[i - 1] << ": " << argv[i] << "\n";
-            }
-            else {
+            } else {
                 std::cout << " " << arguments[i - 1] << ": ?"
-                    << "\n";
+                          << "\n";
             }
         }
     }
@@ -296,7 +295,6 @@ int main(int argc, char** argv) {
             collisionTimeRel,
             100.0- updateObjRel -collisionTimeRel);
     }
-
 
     return 0;
 }
