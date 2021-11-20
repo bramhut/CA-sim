@@ -221,7 +221,7 @@ int main(int argc, char** argv) {
 
     // Printing final config
     std::ofstream final;
-    final.open("final_config_psoa.txt");
+    final.open("final_config.txt");
     final << std::fixed << std::setprecision(3) << size_enclosure << " " << time_step << " " << object.size << "\n";
     for (size_t i = 0; i < object.size; ++i) {
         final << std::fixed << std::setprecision(3) << object.x[i] << " " << object.y[i] << " " << object.z[i] << " " << object.vx[i] << " " << object.vy[i] << " " << object.vz[i] << " " << object.mass[i] << "\n";
