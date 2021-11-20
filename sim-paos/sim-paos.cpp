@@ -28,12 +28,6 @@ Include pseudocode in the report!
 // Watch class used for easy benchmarking
 watch collisionWatch, updateObjWatch, totalWatch;
 
-// Struct to store i-j object pair
-struct Pair {
-    size_t i;
-    size_t j; 
-};
-
 // Compare the pairs as if they were executed in sequential order (i first then j)
 inline bool operator<(const Pair& p1, const Pair& p2) {
     return (p1.j - p1.i * num_objects) < (p2.j - p2.i * num_objects);
