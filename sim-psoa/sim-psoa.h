@@ -13,6 +13,7 @@
 #include <set>
 
 #include "object.h"
+#include "../common/watch.h"
 
 #define G 6.674E-11
 

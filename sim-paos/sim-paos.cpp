@@ -26,26 +26,7 @@ Include pseudocode in the report!
 
 
 // Watch class used for easy benchmarking
-class watch {
-    std::chrono::steady_clock::time_point t1;
-    std::chrono::steady_clock::time_point t2;
-    uint64_t count = 0;
-public:
-    watch() {
-        start();
-    }
-    uint64_t stop() {
-        t2 = std::chrono::high_resolution_clock::now();
-        count += std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
-        return count;
-    }
-    void start() {
-        t1 = std::chrono::high_resolution_clock::now();
-    }
-    uint64_t getCount() {
-        return count;
-    }
-}collisionWatch, updateObjWatch, totalWatch;
+watch collisionWatch, updateObjWatch, totalWatch;
 
 // Struct to store i-j object pair
 struct Pair {
@@ -63,7 +44,7 @@ void checkCollisions() {
     collisionWatch.start();
 
     std::set<Pair> toRemove;
-    size_t objectsSize = objects.size();
+    int objectsSize = objects.size();
 
     #pragma omp parallel for num_threads(4) schedule(guided)
     for (int i = 0; i < objectsSize; i++) {

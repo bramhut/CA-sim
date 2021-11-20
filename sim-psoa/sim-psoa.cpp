@@ -13,26 +13,7 @@
 // FUNCTIONS
 
 // Watch class used for easy benchmarking
-class watch {
-    std::chrono::steady_clock::time_point t1;
-    std::chrono::steady_clock::time_point t2;
-    uint64_t count = 0;
-public:
-    watch() {
-        start();
-    }
-    uint64_t stop() {
-        t2 = std::chrono::high_resolution_clock::now();
-        count += std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
-        return count;
-    }
-    void start() {
-        t1 = std::chrono::high_resolution_clock::now();
-    }
-    uint64_t getCount() {
-        return count;
-    }
-}collisionWatch, updateObjWatch, totalWatch;
+watch collisionWatch, updateObjWatch, totalWatch;
 
 // Struct to store i-j object pair
 struct Pair {
@@ -54,7 +35,7 @@ void checkCollisions(Object& objects) {
     std::set<Pair> toRemove;
 
     #pragma omp parallel for schedule(guided)
-    for (int i = 0; i < objects.size; i++) {
+    for (int i = 0; i < (int)objects.size; i++) {
         for (int j = i - 1; j >= 0; j--) {
             if (dst_sqr(&objects, i,j) < 1) {
                 #pragma omp critical
