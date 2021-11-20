@@ -25,7 +25,7 @@ Include pseudocode in the report!
 // FUNCTIONS
 
 
-// REMOVE THIS LATER - JUST TO TEST THE EXEC TIME
+// Watch class used for easy benchmarking
 class watch {
     std::chrono::steady_clock::time_point t1;
     std::chrono::steady_clock::time_point t2;
@@ -50,9 +50,7 @@ public:
 // Struct to store i-j object pair
 struct Pair {
     size_t i;
-    size_t j;
-
-    
+    size_t j; 
 };
 
 // Compare the pairs as if they were executed in sequential order (i first then j)
@@ -206,7 +204,6 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    en_benchmark = en_benchmark;
     num_objects = std::stoi(argv[1]);
     num_iterations = std::stoi(argv[2]);
     seed = std::stoull(argv[3]);

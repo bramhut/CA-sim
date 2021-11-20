@@ -14,6 +14,8 @@ struct Object {
 
 	size_t size;
 
+	std::vector <bool> removeFlag;
+
 	std::vector <double> mass;
 
 	std::vector <double> x;
@@ -30,6 +32,7 @@ struct Object {
 
 	// Constructor
 	Object(const size_t size, const uint64_t seed, const double size_enclosure) : size(size),
+		removeFlag(size,false),
 		mass(size),
 		x(size),
 		y(size),
@@ -91,15 +94,8 @@ struct Object {
 	}
 
 	// j merges into i (j deleted)
-	inline void merge_objects(size_t i, size_t j) {
-		// Merge attributes
-		mass[i] += mass[j];
-		vx[i] += vx[j];
-		vy[i] += vy[j];
-		vz[i] += vz[j];
-
-		// Delete second object
-
+	inline void delete_object(size_t j) {
+		removeFlag.erase(removeFlag.begin() + j);
 		mass.erase(mass.begin() + j);
 		x.erase(x.begin() + j);
 		y.erase(y.begin() + j);
@@ -113,31 +109,6 @@ struct Object {
 
 		size--;
 	}
-
-	// Check for possible collisions (for objects j < i)
-	inline void check_collisions(size_t& i) {
-		size_t iterator = 0;
-		while (iterator < i)
-		{
-			// Merge when distance is less than 1
-			if (dst_sqr(this, i, iterator) < 1)
-			{
-				// Collision detected, merge iterator object into i
-				merge_objects(i, iterator);
-
-				// Decrement i, as i is now one index lower
-				i--;
-#ifndef NDEBUG
-				std::printf("Two bodies collided. New size: %.2E\n", mass[i]);
-#endif
-			}
-			else
-			{
-				iterator++;
-			}
-		}
-	}
-
 };
 
 inline double dst_sqr(Object* n, size_t i1, size_t i2) {

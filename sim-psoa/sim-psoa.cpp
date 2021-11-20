@@ -1,9 +1,104 @@
 #include "sim-psoa.h"
 
-bool en_benchmark = false;
+// GLOBAL VARIABLES
+
+    // SETTINGS
+    int num_objects;
+    int num_iterations;
+    uint64_t seed;
+    double size_enclosure;
+    double time_step;
+    bool en_benchmark = false;
+
+// FUNCTIONS
+
+// Watch class used for easy benchmarking
+class watch {
+    std::chrono::steady_clock::time_point t1;
+    std::chrono::steady_clock::time_point t2;
+    uint64_t count = 0;
+public:
+    watch() {
+        start();
+    }
+    uint64_t stop() {
+        t2 = std::chrono::high_resolution_clock::now();
+        count += std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
+        return count;
+    }
+    void start() {
+        t1 = std::chrono::high_resolution_clock::now();
+    }
+    uint64_t getCount() {
+        return count;
+    }
+}collisionWatch, updateObjWatch, totalWatch;
+
+// Struct to store i-j object pair
+struct Pair {
+    size_t i;
+    size_t j;
+};
+
+// Compare the pairs as if they were executed in sequential order (i first then j)
+inline bool operator<(const Pair& p1, const Pair& p2) {
+    return (p1.j - p1.i * num_objects) < (p2.j - p2.i * num_objects);
+}
+
+// Checks for collisions between object i and objects 0 to i - 1
+void checkCollisions(Object& objects) {
+    collisionWatch.start();
+
+    // TO ADD: NO CHECKING FOR REMOVING IF NOTHING HAS MERGED
+
+    std::set<Pair> toRemove;
+
+    #pragma omp parallel for schedule(guided)
+    for (int i = 0; i < objects.size; i++) {
+        for (int j = i - 1; j >= 0; j--) {
+            if (dst_sqr(&objects, i,j) < 1) {
+                #pragma omp critical
+                toRemove.emplace(i, j);
+            }
+        }
+    }
+
+
+    // All collisions have been detected, now merge the collided objects
+    bool needRemoval = !toRemove.empty();
+    while (!toRemove.empty()) {
+        // Retrieve & remove the last element from the set
+        auto it = std::prev(toRemove.end());
+        auto i = (*it).i;
+        auto j = (*it).j;
+        toRemove.erase(it);
+
+        if (objects.removeFlag[j]) {
+            continue;
+        }
+        objects.removeFlag[j] = true;
+
+        objects.mass[i] += objects.mass[j];
+        objects.vx[i] += objects.vx[j];
+        objects.vy[i] += objects.vy[j];
+        objects.vz[i] += objects.vz[j];
+
+        //std::printf("\tMerging %zi -> %zi\n", j,i);
+    }
+
+    // Remove elements (only if something has merged)
+    if (needRemoval) {
+        for (size_t i = 0; i < objects.size; i++) {
+            if (objects.removeFlag[i]) {
+                objects.delete_object(i--);
+            }
+        }
+    }
+    collisionWatch.stop();
+}
 
 int main(int argc, char** argv) {
-    auto t1 = std::chrono::high_resolution_clock::now();  // Start measuring the execution time
+    totalWatch.start();
 
     // Check the input parameters
     const char* arguments[5] = {"num_objects", "num_iterations",
@@ -39,11 +134,11 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    const int num_objects = std::stoi(argv[1]);
-    const int num_iterations = std::stoi(argv[2]);
-    const uint64_t seed = std::stoull(argv[3]);
-    const double size_enclosure = std::stod(argv[4]);
-    const double time_step = std::stod(argv[5]);
+    num_objects = std::stoi(argv[1]);
+    num_iterations = std::stoi(argv[2]);
+    seed = std::stoull(argv[3]);
+    size_enclosure = std::stod(argv[4]);
+    time_step = std::stod(argv[5]);
 
     if (num_objects < 0) {
         std::cerr << "Error: Invalid number of objects\n";
@@ -69,9 +164,7 @@ int main(int argc, char** argv) {
     Object object((size_t)num_objects, seed, size_enclosure);
 
     // Check for collisions before starting
-    for (size_t i = 0; i < object.size; i++) {
-        object.check_collisions(i);
-    }
+    checkCollisions(object);
 
     // Print the initial config
     std::ofstream initial;
@@ -84,6 +177,9 @@ int main(int argc, char** argv) {
 
     // Time loop
     for (size_t iteration = 0; iteration < (unsigned)num_iterations; iteration++) {
+        // Start stopwatch
+        updateObjWatch.start();
+
         // Reset all forces to zero
         object.reset_forces();
 
@@ -120,11 +216,10 @@ int main(int argc, char** argv) {
             // If objects are outside of boundary, set them to the perimeter
 
             object.adjust_for_boundary(size_enclosure, i);
-
-            // Check for collisions (for all objects j < i)
-
-            object.check_collisions(i);
         }
+        updateObjWatch.stop();
+
+        checkCollisions(object);
 
         // Printing (only in debug)
 #ifndef NDEBUG
@@ -145,7 +240,7 @@ int main(int argc, char** argv) {
 
     // Printing final config
     std::ofstream final;
-    final.open("final_config.txt");
+    final.open("final_config_psoa.txt");
     final << std::fixed << std::setprecision(3) << size_enclosure << " " << time_step << " " << object.size << "\n";
     for (size_t i = 0; i < object.size; ++i) {
         final << std::fixed << std::setprecision(3) << object.x[i] << " " << object.y[i] << " " << object.z[i] << " " << object.vx[i] << " " << object.vy[i] << " " << object.vz[i] << " " << object.mass[i] << "\n";
@@ -153,13 +248,20 @@ int main(int argc, char** argv) {
     final.close();
 
     // Measure execution time and print it
-    auto t2 = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> exec_ms = t2 - t1;
+    totalWatch.stop();
     if (en_benchmark) {
-        std::printf("%f", exec_ms.count());
-    } else {
-        std::printf("Total execution time was %f ms.\n", exec_ms.count());
+        std::printf("%f", totalWatch.getCount() / 1000000.0);
     }
-
+    else {
+        double updateObjRel = (double)updateObjWatch.getCount() / totalWatch.getCount() * 100;
+        double collisionTimeRel = (double)collisionWatch.getCount() / totalWatch.getCount() * 100;
+        std::printf("Total execution time: %.1fms: UpdateObjTime %.1fms (%.1f%%), CollisionTime %.1fms (%.1f%%), Others (%.1f%%)\n",
+            totalWatch.getCount() / 1000000.0,
+            updateObjWatch.getCount() / 1000000.0,
+            updateObjRel,
+            collisionWatch.getCount() / 1000000.0,
+            collisionTimeRel,
+            100.0 - updateObjRel - collisionTimeRel);
+    }
     return 0;
 }
