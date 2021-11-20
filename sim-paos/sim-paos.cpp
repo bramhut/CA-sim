@@ -250,7 +250,7 @@ int main(int argc, char** argv) {
 
     // Printing final config
     std::ofstream final;
-    final.open("final_config_paos.txt");
+    final.open("final_config.txt");
     final << std::fixed << std::setprecision(3) << size_enclosure << " " << time_step << " " << objects.size() << "\n";
     for (const auto& i : objects) {
         final << std::fixed << std::setprecision(3) << i.p[0] << " " << i.p[1] << " " << i.p[2] << " " << i.v[0] << " " << i.v[1] << " " << i.v[2] << " " << i.mass << "\n";
