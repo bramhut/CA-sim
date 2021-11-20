@@ -14,5 +14,6 @@
 
 #include "object.h"
 #include "../common/watch.h"
+#include "../common/pair.h"
 
 #define G 6.674E-11
