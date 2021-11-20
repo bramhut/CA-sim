@@ -53,24 +53,15 @@ void checkCollisions() {
 
     // All collisions have been detected, now merge the collided objects
     //std::printf("New collision check\n");
-    static size_t iter = 0;
+    bool needRemoval = !toRemove.empty();
     while (!toRemove.empty()) {
         
         // Remove the last element from the set
         auto it = std::prev(toRemove.end());
-        
-        //auto p = toRemove.front();
-        //toRemove.pop();
         auto i = (*it).i;
         auto j = (*it).j;
         toRemove.erase(it);
 
-        //if (std::find(seen[0].begin(), seen[0].end(), i) != seen[0].end()) {
-        //    std::printf("Found double i (%zi) in iteration %zi\n",i,iter);
-        //}
-        //if (std::find(seen[1].begin(), seen[1].end(), j) != seen[1].end()) {
-        //    std::printf("Found double j (%zi) in iteration %zi\n", j, iter);
-        //}
         if (objects[j].removeFlag) {
             continue;
         }
@@ -82,20 +73,20 @@ void checkCollisions() {
         objects[i].v[2] += objects[j].v[2];
         
         //std::printf("\tMerging %zi -> %zi\n", j,i);
-        
-        iter++;
     }
 
-    // Remove elements
-    objects.erase(
-        std::remove_if(
-            objects.begin(),
-            objects.end(),
-            [&](const Object obj)-> bool {
-                return obj.removeFlag;
-            }),
-        objects.end()
-    );
+    // Remove elements if necessary
+    if (needRemoval){
+        objects.erase(
+            std::remove_if(
+                objects.begin(),
+                objects.end(),
+                [&](const Object obj)-> bool {
+                    return obj.removeFlag;
+                }),
+            objects.end()
+        );
+    }
     collisionWatch.stop();
 }
 
