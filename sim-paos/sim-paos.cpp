@@ -40,7 +40,7 @@ void checkCollisions() {
     std::set<Pair> toRemove;
     int objectsSize = objects.size();
 
-    #pragma omp parallel for chedule(guided)
+    #pragma omp parallel for schedule(guided)
     for (int i = 0; i < objectsSize; i++) {
         for (int j = i - 1; j >= 0; j--) {
             if (dst_sqr(objects[i], objects[j]) < 1) {
