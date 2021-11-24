@@ -1,6 +1,5 @@
 ﻿#include "sim-paos.h"
 
-
 /*
 
 
@@ -11,19 +10,18 @@ Include pseudocode in the report!
 
 // GLOBAL VARIABLES
 
-    // SETTINGS
-    int num_objects;
-    int num_iterations;
-    uint64_t seed;
-    double size_enclosure;
-    double time_step;
-    bool en_benchmark = false;
+// SETTINGS
+int num_objects;
+int num_iterations;
+uint64_t seed;
+double size_enclosure;
+double time_step;
+bool en_benchmark = false;
 
-    // OBJECTS VECTOR
-    std::vector<Object> objects;
+// OBJECTS VECTOR
+std::vector<Object> objects;
 
 // FUNCTIONS
-
 
 // Watch class used for easy benchmarking
 watch collisionWatch, updateObjWatch, totalWatch;
@@ -38,24 +36,22 @@ void checkCollisions() {
     collisionWatch.start();
 
     std::set<Pair> toRemove;
-    int objectsSize = objects.size();
+    const size_t objectsSize = objects.size();
 
-    #pragma omp parallel for schedule(guided)
+#pragma omp parallel for schedule(guided)
     for (int i = 0; i < objectsSize; i++) {
         for (int j = i - 1; j >= 0; j--) {
             if (dst_sqr(objects[i], objects[j]) < 1) {
-                #pragma omp critical
-                toRemove.emplace(i,j);
+#pragma omp critical
+                toRemove.emplace(i, j);
             }
         }
     }
-    
 
     // All collisions have been detected, now merge the collided objects
     //std::printf("New collision check\n");
     bool needRemoval = !toRemove.empty();
     while (!toRemove.empty()) {
-        
         // Remove the last element from the set
         auto it = std::prev(toRemove.end());
         auto i = (*it).i;
@@ -71,21 +67,20 @@ void checkCollisions() {
         objects[i].v[0] += objects[j].v[0];
         objects[i].v[1] += objects[j].v[1];
         objects[i].v[2] += objects[j].v[2];
-        
+
         //std::printf("\tMerging %zi -> %zi\n", j,i);
     }
 
     // Remove elements if necessary
-    if (needRemoval){
+    if (needRemoval) {
         objects.erase(
             std::remove_if(
                 objects.begin(),
                 objects.end(),
-                [&](const Object obj)-> bool {
+                [&](const Object obj) -> bool {
                     return obj.removeFlag;
                 }),
-            objects.end()
-        );
+            objects.end());
     }
     collisionWatch.stop();
 }
@@ -225,12 +220,12 @@ int main(int argc, char** argv) {
     initial.close();
 
     // Time loop
-    for (size_t iteration = 0; iteration < (unsigned) num_iterations; iteration++) { 
+    for (size_t iteration = 0; iteration < (unsigned)num_iterations; iteration++) {
         updateObjects();
-        
+
         // Check for collisions (for all objects j < i)
         checkCollisions();
-        
+
     }  // END OF TIME LOOP
 
     // Printing final config
@@ -246,17 +241,16 @@ int main(int argc, char** argv) {
     totalWatch.stop();
     if (en_benchmark) {
         std::printf("%f", totalWatch.getCount() / 1000000.0);
-    }
-    else {
+    } else {
         double updateObjRel = (double)updateObjWatch.getCount() / totalWatch.getCount() * 100;
         double collisionTimeRel = (double)collisionWatch.getCount() / totalWatch.getCount() * 100;
-        std::printf("Total execution time: %.1fms: UpdateObjTime %.1fms (%.1f%%), CollisionTime %.1fms (%.1f%%), Others (%.1f%%)\n", 
-            totalWatch.getCount() / 1000000.0,
-            updateObjWatch.getCount() / 1000000.0,
-            updateObjRel,
-            collisionWatch.getCount() / 1000000.0,
-            collisionTimeRel,
-            100.0- updateObjRel -collisionTimeRel);
+        std::printf("Total execution time: %.1fms: UpdateObjTime %.1fms (%.1f%%), CollisionTime %.1fms (%.1f%%), Others (%.1f%%)\n",
+                    totalWatch.getCount() / 1000000.0,
+                    updateObjWatch.getCount() / 1000000.0,
+                    updateObjRel,
+                    collisionWatch.getCount() / 1000000.0,
+                    collisionTimeRel,
+                    100.0 - updateObjRel - collisionTimeRel);
     }
 
     return 0;
