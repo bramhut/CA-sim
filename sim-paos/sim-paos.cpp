@@ -36,7 +36,7 @@ void checkCollisions() {
     collisionWatch.start();
 
     std::set<Pair> toRemove;
-    const size_t objectsSize = objects.size();
+    int objectsSize = (int) objects.size();
 
 #pragma omp parallel for schedule(guided)
     for (int i = 0; i < objectsSize; i++) {
